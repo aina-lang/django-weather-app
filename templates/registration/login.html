@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion — Météo Moderne{% endblock %}
+
+{% block content %}
+<div class="auth-container fade-in">
+    <div class="auth-card">
+        <h2 class="auth-title">Connexion</h2>
+        <p class="auth-subtitle">Accédez à vos prévisions personnalisées</p>
+        
+        <form method="post" class="modern-form">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="error-banner">
+                Identifiants incorrects. Veuillez réessayer.
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="id_username" class="form-label">Nom d'utilisateur</label>
+                <input type="text" name="username" id="id_username" class="modern-input" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password" class="form-label">Mot de passe</label>
+                <input type="password" name="password" id="id_password" class="modern-input" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Se connecter</button>
+        </form>
+
+        <div class="auth-footer">
+            <span>Pas encore de compte ?</span>
+            <a href="{% url 'register' %}" class="auth-link">Créer un compte</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+}
+.auth-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 3rem;
+    border-radius: 2rem;
+    width: 100%;
+    max-width: 450px;
+    backdrop-filter: blur(var(--glass-blur));
+}
+.auth-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+.auth-subtitle {
+    color: var(--color-text-muted);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    font-size: 0.95rem;
+}
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+}
+.auth-footer {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+.auth-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+.auth-link:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}

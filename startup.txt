@@ -1,0 +1,8 @@
+# Azure App Service deployment configuration
+# This file helps Azure App Service understand how to deploy your Django app
+
+# Python version
+PYTHON_VERSION=3.12
+
+# Startup command for Azure App Service
+gunicorn --bind=0.0.0.0 --timeout 600 django_weather_app.wsgi:application

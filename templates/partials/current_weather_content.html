@@ -1,0 +1,58 @@
+<div class="weather-result fade-in">
+    <header class="result-header">
+        <h2 class="result-title">Météo à {{ city|capfirst }}</h2>
+        <p class="result-date">{{ weather.date|date:"l d F Y" }}</p>
+    </header>
+
+    <div class="weather-main">
+        <div class="hero-temp">
+            <span class="temp-number">{{ weather.temperature }}</span>
+            <span class="temp-unit">°C</span>
+        </div>
+        <p class="hero-desc">{{ weather.description|capfirst }}</p>
+        <p class="hero-feels">Ressenti : {{ weather.feels_like }}°C</p>
+    </div>
+
+    <div class="weather-grid">
+        <div class="grid-item">
+            <span class="item-label">Max / Min</span>
+            <span class="item-value">{{ weather.temp_max }}° / {{ weather.temp_min }}°</span>
+        </div>
+        <div class="grid-item">
+            <span class="item-label">Humidité</span>
+            <span class="item-value">{{ weather.humidity }}%</span>
+        </div>
+        <div class="grid-item">
+            <span class="item-label">Vent</span>
+            <span class="item-value">{{ weather.wind_speed }} m/s</span>
+        </div>
+        <div class="grid-item">
+            <span class="item-label">Indice UV</span>
+            <span class="item-value">{{ weather.uv_index }}</span>
+        </div>
+        <div class="grid-item">
+            <span class="item-label">Visibilité</span>
+            <span class="item-value">{{ weather.visibility }}</span>
+        </div>
+        <div class="grid-item">
+            <span class="item-label">Lever du soleil</span>
+            <span class="item-value">{{ weather.sunrise }}</span>
+        </div>
+        <div class="grid-item">
+            <span class="item-label">Coucher du soleil</span>
+            <span class="item-value">{{ weather.sunset }}</span>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <button hx-get="{% url 'index' %}" hx-target="#main-content" hx-push-url="true" class="btn-secondary">
+            Nouvelle recherche
+        </button>
+        <button hx-get="{% url 'index' %}?city={{ city }}&option=forecast" 
+                hx-target="#main-content" 
+                hx-push-url="true" 
+                class="btn-primary">
+            Prévisions 3 jours
+        </button>
+    </div>
+</div>

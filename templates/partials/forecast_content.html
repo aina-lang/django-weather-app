@@ -1,0 +1,39 @@
+<div class="forecast-result fade-in">
+    <header class="result-header">
+        <h2 class="result-title">Prévisions pour {{ city|capfirst }}</h2>
+        <p class="result-subtitle">Détails sur 3 jours</p>
+    </header>
+
+    <div class="action-bar top-nav">
+        <button hx-get="{% url 'index' %}" hx-target="#main-content" hx-push-url="true" class="btn-secondary">
+            ← Retour
+        </button>
+        <button hx-get="{% url 'index' %}?city={{ city }}&option=weather" 
+                hx-target="#main-content" 
+                hx-push-url="true" 
+                class="btn-primary">
+            Météo Actuelle
+        </button>
+    </div>
+
+    <div class="forecast-days">
+        {% for date, day_data in forecast.items %}
+        <div class="day-card">
+            <h3 class="day-title">{{ day_data.date_obj|date:"l d F" }}</h3>
+            <div class="hours-scroll">
+                {% for f in day_data.forecasts %}
+                <div class="hour-card">
+                    <span class="hour-time">{{ f.hour }}</span>
+                    <span class="hour-temp">{{ f.temperature }}°</span>
+                    <span class="hour-desc">{{ f.description|capfirst }}</span>
+                    <div class="hour-meta">
+                        <span>H: {{ f.humidity }}%</span>
+                        <span>V: {{ f.wind_speed }}m/s</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

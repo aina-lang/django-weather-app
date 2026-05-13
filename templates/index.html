@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="search-section">
+    {% if error_message %}
+    <div class="error-banner fade-in">
+        {{ error_message }}
+    </div>
+    {% endif %}
+
+    <form hx-get="{% url 'index' %}" 
+          hx-target="#main-content" 
+          hx-push-url="true"
+          hx-indicator="#loading-indicator"
+          class="modern-form">
+        
+        <div class="input-wrapper">
+            <input
+                type="text"
+                id="city"
+                name="city"
+                class="modern-input"
+                placeholder="Entrez une ville (ex: Paris, Helsinki)"
+                required
+                value="{{ city|default_if_none:'' }}"
+            >
+            <div id="loading-indicator" class="htmx-indicator">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <div class="options-grid">
+            <label class="option-card">
+                <input type="radio" name="option" value="weather" checked>
+                <div class="card-content">
+                    <span class="card-title">Météo Actuelle</span>
+                    <span class="card-desc">Conditions en temps réel</span>
+                </div>
+            </label>
+
+            <label class="option-card">
+                <input type="radio" name="option" value="forecast">
+                <div class="card-content">
+                    <span class="card-title">Prévisions 3 Jours</span>
+                    <span class="card-desc">Détails heure par heure</span>
+                </div>
+            </label>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            Rechercher
+        </button>
+    </form>
+</section>
+{% endblock %}

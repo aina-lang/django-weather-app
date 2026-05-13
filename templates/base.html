@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Météo — Votre Compagnon Moderne{% endblock %}</title>
+    <meta name="description" content="{% block description %}Obtenez des prévisions précises et les conditions actuelles pour n'importe quelle ville.{% endblock %}">
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v={% now 'U' %}">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="user-nav">
+                {% if user.is_authenticated %}
+                    <span class="welcome-text">Bonjour, <strong>{{ user.username }}</strong></span>
+                    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-link">Déconnexion</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="logout-link">Connexion</a>
+                {% endif %}
+            </div>
+            <h1 class="app-title">Météo Moderne</h1>
+            <p class="app-subtitle">L'élégance au service de la précision</p>
+        </header>
+
+        <main id="main-content" class="fade-in">
+            {% block content %}{% endblock %}
+        </main>
+
+        {% include "partials/footer.html" %}
+    </div>
+
+    {% block extra_js %}{% endblock %}
+    
+    <script>
+        document.body.addEventListener('htmx:beforeSwap', function(evt) {
+            const main = document.getElementById('main-content');
+            if (main) {
+                main.classList.remove('fade-in');
+                main.classList.add('fade-out');
+            }
+        });
+        
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            const main = document.getElementById('main-content');
+            if (main) {
+                main.classList.remove('fade-out');
+                main.classList.add('fade-in');
+            }
+        });
+    </script>
+</body>
+</html>

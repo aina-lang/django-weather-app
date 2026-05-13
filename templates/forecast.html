@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block title %}Prévisions pour {{ city|capfirst }} — Météo Moderne{% endblock %}
+
+{% block content %}
+    {% include "partials/forecast_content.html" %}
+{% endblock %}
