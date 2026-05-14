@@ -21,8 +21,8 @@ openweathermap_api_key = os.getenv('OPENWEATHERMAP_API_KEY')
 def get_server_info():
     """Helper to get pod and node information."""
     return {
-        'pod_name': socket.gethostname(),
-        'node_name': os.getenv('MY_NODE_NAME', 'Inconnu')
+        'pod_name': os.getenv('POD_NAME', 'local'),
+        'node_name': os.getenv('NODE_NAME', 'local')
     }
 
 @api_view(['GET'])
@@ -91,4 +91,13 @@ def health_check(request):
     return Response({
         'status': 'healthy',
         'server_info': get_server_info()
+    })
+
+from django.http import JsonResponse
+
+def cluster_info(request):
+    return JsonResponse({
+        'pod_name': os.getenv('POD_NAME', 'local'),
+        'node_name': os.getenv('NODE_NAME', 'local'),
+        'status': 'ok'
     })
