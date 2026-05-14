@@ -8,3 +8,6 @@ django-ipware==7.0.1       # To get the client's IP address
 geoip2==5.2.0              # For IP-based geolocation
 pymysql
 cryptography
+djangorestframework
+django-cors-headers
+djangorestframework-simplejwt

@@ -1,6 +1,16 @@
 <footer class="footer">
     <div class="footer-content">
         <p>&copy; {% now "Y" %} Application Météo Moderne. Tous droits réservés.</p>
+        
+        {% if server_info %}
+        <div class="server-status">
+            <span class="status-dot"></span>
+            Serveur : <code>{{ server_info.pod_name }}</code> 
+            <span class="separator">|</span> 
+            Noeud : <strong>{{ server_info.node_name }}</strong>
+        </div>
+        {% endif %}
+
         <div class="footer-links">
             <a href="https://openweathermap.org/" target="_blank" rel="noopener">Données par OpenWeather</a>
             <span class="separator">|</span>

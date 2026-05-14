@@ -1,12 +1,14 @@
 # weather/views.py
 
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login as auth_login
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import status
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 from dotenv import load_dotenv
 import os
+import socket
 
 from weather.utils.get_weather_with_uv import get_weather_with_uv
 from weather.utils.get_weather_forecast import get_weather_forecast
@@ -16,65 +18,77 @@ from weather.utils import geo
 load_dotenv()
 openweathermap_api_key = os.getenv('OPENWEATHERMAP_API_KEY')
 
-@login_required
-def index(request):
-    """Front page where the user can search for weather or forecast."""
-    error_message = None
-    city = request.GET.get('city', '').strip()
+def get_server_info():
+    """Helper to get pod and node information."""
+    return {
+        'pod_name': socket.gethostname(),
+        'node_name': os.getenv('MY_NODE_NAME', 'Inconnu')
+    }
 
-    # If no city in URL, try to determine it based on IP address
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def weather_search(request):
+    """API endpoint to search for weather or forecast."""
+    city = request.GET.get('city', '').strip()
+    option = request.GET.get('option', 'weather')
+
     if not city:
         detected_city = geo.index(request)
         if detected_city:
             city = detected_city
+        else:
+            return Response({'error': 'City is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    is_htmx = request.headers.get('HX-Request')
+    server_info = get_server_info()
 
-    if request.method == "GET" and 'city' in request.GET:
-        option = request.GET.get('option')
-        if option == "weather":
-            weather = get_weather_with_uv(openweathermap_api_key, city)  # type: ignore
-            if weather:
-                template = 'partials/current_weather_content.html' if is_htmx else 'current_weather.html'
-                return render(request, template, {'weather': weather, 'city': city})
-            error_message = f"Désolé, les données météo pour {city.capitalize()} n'ont pas pu être récupérées."
-        elif option == "forecast":
-            forecast = get_weather_forecast(openweathermap_api_key, city)  # type: ignore
-            if forecast:
-                template = 'partials/forecast_content.html' if is_htmx else 'forecast.html'
-                return render(request, template, {'forecast': forecast, 'city': city})
-            error_message = f"Désolé, les prévisions pour {city.capitalize()} n'ont pas pu être récupérées."
+    if option == "weather":
+        weather = get_weather_with_uv(openweathermap_api_key, city)
+        if weather:
+            return Response({
+                'type': 'weather',
+                'city': city,
+                'data': weather,
+                'server_info': server_info
+            })
+        return Response({'error': f"Could not retrieve weather for {city}"}, status=status.HTTP_404_NOT_FOUND)
+    
+    elif option == "forecast":
+        forecast = get_weather_forecast(openweathermap_api_key, city)
+        if forecast:
+            return Response({
+                'type': 'forecast',
+                'city': city,
+                'data': forecast,
+                'server_info': server_info
+            })
+        return Response({'error': f"Could not retrieve forecast for {city}"}, status=status.HTTP_404_NOT_FOUND)
 
-    if is_htmx and error_message:
-        return HttpResponse(f'<div class="error-message">{error_message}</div>', status=200)
+    return Response({'error': 'Invalid option'}, status=status.HTTP_400_BAD_REQUEST)
 
-    return render(request, 'index.html', {'error_message': error_message, 'city': city})
-
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def register(request):
-    """View for user registration."""
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            auth_login(request, user)
-            return redirect('index')
-    else:
-        form = UserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
+    """API endpoint for user registration."""
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    if not username or not password:
+        return Response({'error': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    user = User.objects.create(
+        username=username,
+        password=make_password(password)
+    )
+    return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
 
-@login_required
-def current_weather_view(request):
-    """Display fetched weather for the city determined by GeoIP."""
-    city = geo.index(request)
-
-    if not city:
-        return render(request, '404.html', {'error_message': 'Impossible de déterminer votre ville.'})
-
-    weather = get_weather_with_uv(openweathermap_api_key, city)  # type: ignore
-    if weather:
-        return render(request, 'current_weather.html', {'weather': weather, 'city': city})
-    return HttpResponse(f"Désolé, les données météo pour {city.capitalize()} n'ont pas pu être récupérées.")
-
-def custom_404(request, exception=None):
-    """Handle 404 errors with custom page."""
-    return render(request, '404.html', {'error_message': 'Page non trouvée.'}, status=404)
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def health_check(request):
+    """API health check."""
+    return Response({
+        'status': 'healthy',
+        'server_info': get_server_info()
+    })
