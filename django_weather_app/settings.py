@@ -175,4 +175,9 @@ SIMPLE_JWT = {
 }
 
 # CORS Settings
-CORS_ALLOW_ALL_ORIGINS = True # Change to specific origins in production
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://34.122.23.45:30090",
+    "http://34.122.23.45",
+    "http://localhost:3000",
+]
