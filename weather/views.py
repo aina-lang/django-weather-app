@@ -16,7 +16,7 @@ from weather.utils import geo
 
 # Load environment variables from .env file
 load_dotenv()
-openweathermap_api_key = os.getenv('OPENWEATHERMAP_API_KEY')
+openweathermap_api_key = 'a556cf2e5c619ed84a603b741f4bbabe'
 
 def get_server_info():
     """Helper to get pod and node information."""

@@ -58,16 +58,16 @@ def index(request):
         city = get_city_by_ip(test_ip)
         # If GeoIP doesn't return a city, use default fallback
         if not city:
-            city = "Helsinki"
+            city = "Fianarantsoa"
             if settings.DEBUG:
-                print("DEBUG mode: GeoIP didn't return city, using fallback 'Helsinki'")
+                print("DEBUG mode: GeoIP didn't return city, using fallback 'Fianarantsoa'")
     else:
         city = get_city_by_ip(ip)
-        # If no city found in production, use Helsinki fallback
+        # If no city found in production, use Fianarantsoa fallback
         if not city:
-            city = "Helsinki"
+            city = "Fianarantsoa"
             if settings.DEBUG:
-                print("No city found for IP, using fallback city: Helsinki")
+                print("No city found for IP, using fallback city: Fianarantsoa")
 
     if settings.DEBUG:
         print(f"City determined from request: {city}")  # Debug
